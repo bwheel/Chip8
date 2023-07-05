@@ -4,45 +4,35 @@
 
 
 #define START_ADDRESS 0x0200
-#define FONT_ADDRESS 0x0000
-#define SCREEN_SIZE 32*64
+#define FONT_START_ADDRESS 0x0050
+#define FONT_SIZE 80
+#define SCREEN_WIDTH 64
+#define SCREEN_HEIGHT 32
+#define SCREEN_SIZE SCREEN_WIDTH*SCREEN_HEIGHT
 #define SPRITE_SIZE 5
+#define KEYBOARD_SIZE 16
+#define REGISTERS_SIZE 16
+#define STACK_SIZE 16
+#define MEMORY_SIZE 4096
 
-const uint8_t FONT[80] = {
-	(uint8_t)0xf0, (uint8_t)0x90, (uint8_t)0x90, (uint8_t)0x90, (uint8_t)0xf0, // "0"
-	(uint8_t)0x20, (uint8_t)0x60, (uint8_t)0x20, (uint8_t)0x20, (uint8_t)0x70, // "1"
-	(uint8_t)0xf0, (uint8_t)0x10, (uint8_t)0xf0, (uint8_t)0x80, (uint8_t)0xf0, // "2"
-	(uint8_t)0xf0, (uint8_t)0x10, (uint8_t)0xf0, (uint8_t)0x10, (uint8_t)0xf0, // "3"
-	(uint8_t)0x90, (uint8_t)0x90, (uint8_t)0xf0, (uint8_t)0x10, (uint8_t)0x10, // "4"
-	(uint8_t)0xf0, (uint8_t)0x80, (uint8_t)0xf0, (uint8_t)0x10, (uint8_t)0xf0, // "5"
-	(uint8_t)0xf0, (uint8_t)0x80, (uint8_t)0xf0, (uint8_t)0x90, (uint8_t)0xf0, // "6"
-	(uint8_t)0xf0, (uint8_t)0x10, (uint8_t)0x20, (uint8_t)0x40, (uint8_t)0x40, // "7"
-	(uint8_t)0xf0, (uint8_t)0x90, (uint8_t)0xf0, (uint8_t)0x90, (uint8_t)0xf0, // "8"
-	(uint8_t)0xf0, (uint8_t)0x90, (uint8_t)0xf0, (uint8_t)0x10, (uint8_t)0xf0, // "9"
-	(uint8_t)0xf0, (uint8_t)0x90, (uint8_t)0xf0, (uint8_t)0x90, (uint8_t)0x90, // "A"
-	(uint8_t)0xe0, (uint8_t)0x90, (uint8_t)0xe0, (uint8_t)0x90, (uint8_t)0xe0, // "B"
-	(uint8_t)0xf0, (uint8_t)0x80, (uint8_t)0x80, (uint8_t)0x80, (uint8_t)0xf0, // "C"
-	(uint8_t)0xe0, (uint8_t)0x90, (uint8_t)0x90, (uint8_t)0x90, (uint8_t)0xe0, // "D"
-	(uint8_t)0xf0, (uint8_t)0x80, (uint8_t)0xf0, (uint8_t)0x80, (uint8_t)0xf0, // "E"
-	(uint8_t)0xf0, (uint8_t)0x80, (uint8_t)0xf0, (uint8_t)0x80, (uint8_t)0x80, // "F"
-
-};
 
 typedef struct Emulator {
-	uint8_t registers[16];
+	uint8_t registers[REGISTERS_SIZE];
 	uint16_t index;
-	uint8_t stack[16];
+	uint16_t stack[STACK_SIZE];
 	uint8_t stackPointer;
 	uint16_t programCounter;
 	uint8_t delayTimer;
 	uint8_t soundTimer;
 	uint8_t frameBuffer[SCREEN_SIZE];
-	uint8_t memory[4096];
+	uint8_t memory[MEMORY_SIZE];
 	uint8_t opcode;
+	uint8_t keys[KEYBOARD_SIZE];
 } Emulator;
 
 
 Emulator* Chip8_Init();
 bool Chip8_Destroy(Emulator* pEmulator);
 bool Chip8_LoadFile(Emulator* pEmulator, const char* filename);
-bool Chip8_Run(Emulator* pEmulator);
+bool Chip8_LoadRom(Emulator* pEmulator, const uint8_t* buffer, uint32_t length);
+bool Chip8_ExecuteStep(Emulator* pEmulator);

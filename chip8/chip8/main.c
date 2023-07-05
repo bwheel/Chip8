@@ -4,6 +4,8 @@
 #include "chip8.h"
 
 
+
+
 int main()
 {
 	printf("Hello Chip8\n");
