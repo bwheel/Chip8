@@ -243,15 +243,7 @@ public class Program
         return quit;
     }
 
-    /*
-     void Update(void const* buffer, int pitch)
-	{
-		SDL_UpdateTexture(texture, nullptr, buffer, pitch);
-		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-		SDL_RenderPresent(renderer);
-	}
-     */
+
     public static void UpdateUI(nint texture, nint renderer, Chip8Model model)
     {
         throw new NotImplementedException();
@@ -282,6 +274,23 @@ public class Program
             {
                 prevTime = currentTime;
                 emulator.Cycle(model);
+                // Update
+                for (int row = 0; row < Chip8Constants.DISPLAY_HEIGHT; row++)
+                {
+                    for(int col = 0; col < Chip8Constants.DISPLAY_WIDTH; col++)
+                    {
+
+                        SDL_Rect rect = new SDL_Rect()
+                        {
+                            x = row * 50,
+                            y = col * 50,
+                            w = 50,
+                            h = 50
+                        };
+                        // TODO: implement render
+                        
+                    }
+                }
 
             }
         }
