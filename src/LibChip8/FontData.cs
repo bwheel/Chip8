@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LibChip8
+namespace LibChip8;
+
+internal static class FontData
 {
-    internal static class FontData
-    {
-        public static readonly byte[] LETTERS = [
-            // 0
-            0b11110000,
+    public static readonly byte[] LETTERS = [
+        // 0
+        0b11110000,
             0b10010000,
             0b10010000,
             0b10010000,
@@ -105,22 +105,21 @@ namespace LibChip8
             0b11110000,
             0b10000000,
             0b10000000
-            ];
-        public static readonly byte[] LETTER_0 = LETTERS!.Take(5).ToArray();
-        public static readonly byte[] LETTER_1 = LETTERS!.Skip(5).Take(5).ToArray();
-        public static readonly byte[] LETTER_2 = LETTERS!.Skip(10).Take(5).ToArray();
-        public static readonly byte[] LETTER_3 = LETTERS!.Skip(15).Take(5).ToArray();
-        public static readonly byte[] LETTER_4 = LETTERS!.Skip(20).Take(5).ToArray();
-        public static readonly byte[] LETTER_5 = LETTERS!.Skip(25).Take(5).ToArray();
-        public static readonly byte[] LETTER_6 = LETTERS!.Skip(30).Take(5).ToArray();
-        public static readonly byte[] LETTER_7 = LETTERS!.Skip(35).Take(5).ToArray();
-        public static readonly byte[] LETTER_8 = LETTERS!.Skip(40).Take(5).ToArray();
-        public static readonly byte[] LETTER_9 = LETTERS!.Skip(45).Take(5).ToArray();
-        public static readonly byte[] LETTER_A = LETTERS!.Skip(50).Take(5).ToArray();
-        public static readonly byte[] LETTER_b = LETTERS!.Skip(55).Take(5).ToArray();
-        public static readonly byte[] LETTER_C = LETTERS!.Skip(60).Take(5).ToArray();
-        public static readonly byte[] LETTER_D = LETTERS!.Skip(65).Take(5).ToArray();
-        public static readonly byte[] LETTER_E = LETTERS!.Skip(70).Take(5).ToArray();
-        public static readonly byte[] LETTER_F = LETTERS!.Skip(75).Take(5).ToArray();
-    }
+        ];
+    public static readonly byte[] LETTER_0 = LETTERS!.Take(5).ToArray();
+    public static readonly byte[] LETTER_1 = LETTERS!.Skip(5).Take(5).ToArray();
+    public static readonly byte[] LETTER_2 = LETTERS!.Skip(10).Take(5).ToArray();
+    public static readonly byte[] LETTER_3 = LETTERS!.Skip(15).Take(5).ToArray();
+    public static readonly byte[] LETTER_4 = LETTERS!.Skip(20).Take(5).ToArray();
+    public static readonly byte[] LETTER_5 = LETTERS!.Skip(25).Take(5).ToArray();
+    public static readonly byte[] LETTER_6 = LETTERS!.Skip(30).Take(5).ToArray();
+    public static readonly byte[] LETTER_7 = LETTERS!.Skip(35).Take(5).ToArray();
+    public static readonly byte[] LETTER_8 = LETTERS!.Skip(40).Take(5).ToArray();
+    public static readonly byte[] LETTER_9 = LETTERS!.Skip(45).Take(5).ToArray();
+    public static readonly byte[] LETTER_A = LETTERS!.Skip(50).Take(5).ToArray();
+    public static readonly byte[] LETTER_b = LETTERS!.Skip(55).Take(5).ToArray();
+    public static readonly byte[] LETTER_C = LETTERS!.Skip(60).Take(5).ToArray();
+    public static readonly byte[] LETTER_D = LETTERS!.Skip(65).Take(5).ToArray();
+    public static readonly byte[] LETTER_E = LETTERS!.Skip(70).Take(5).ToArray();
+    public static readonly byte[] LETTER_F = LETTERS!.Skip(75).Take(5).ToArray();
 }
