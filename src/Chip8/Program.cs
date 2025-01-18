@@ -7,7 +7,7 @@ namespace Chip8;
 public class Program
 {
 
-    public static bool processInput(Chip8Model model)
+    public static bool processInput(Model model)
     {
 
         bool quit = false;
@@ -244,7 +244,7 @@ public class Program
     }
 
 
-    public static void UpdateUI(nint texture, nint renderer, Chip8Model model)
+    public static void UpdateUI(nint texture, nint renderer, Model model)
     {
         throw new NotImplementedException();
     }
@@ -253,8 +253,8 @@ public class Program
     {
         _ = SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING);
 
-        Chip8Emulator emulator = new Chip8Emulator();
-        Chip8Model model = new Chip8Model();
+        Emulator emulator = new Emulator();
+        Model model = new Model();
         emulator.LoadRom(model, "IBM Logo.ch8");
         int cycleDelay = 10;
 
@@ -275,9 +275,9 @@ public class Program
                 prevTime = currentTime;
                 emulator.Cycle(model);
                 // Update
-                for (int row = 0; row < Chip8Constants.DISPLAY_HEIGHT; row++)
+                for (int row = 0; row < 32; row++)
                 {
-                    for(int col = 0; col < Chip8Constants.DISPLAY_WIDTH; col++)
+                    for (int col = 0; col < 64; col++)
                     {
 
                         SDL_Rect rect = new SDL_Rect()
@@ -288,7 +288,7 @@ public class Program
                             h = 50
                         };
                         // TODO: implement render
-                        
+
                     }
                 }
 

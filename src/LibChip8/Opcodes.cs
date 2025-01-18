@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace LibChip8
 {
-    public static class Chip8Opcodes
+    internal static class Opcodes
     {
 
-        public readonly static Dictionary<ushort, Action<ushort, Chip8Model>> Table = new Dictionary<ushort, Action<ushort, Chip8Model>>();
+        public readonly static Dictionary<ushort, Action<ushort, Model>> Table = new Dictionary<ushort, Action<ushort, Model>>();
 
-        static Chip8Opcodes()
+        static Opcodes()
         {
             Table[0x00e0] = CLS_00E0;
             Table[0x00ee] = RET_00EE;
@@ -57,12 +57,12 @@ namespace LibChip8
                 else if (lsbNibble == 0xe)
                     Table[i] = SHL_8xyE;
             }
-            for(ushort i = 0x9000; i < 0x9fff; i++)
+            for (ushort i = 0x9000; i < 0x9fff; i++)
             {
-                if((i & 0x000f) == 0)
+                if ((i & 0x000f) == 0)
                     Table[i] = SNE_9xy0;
             }
-            for(ushort i = 0xa000; i < 0xafff; i++)
+            for (ushort i = 0xa000; i < 0xafff; i++)
                 Table[i] = LD_Annn;
             for (ushort i = 0xb000; i < 0xbfff; i++)
                 Table[i] = JP_Bnnn;
@@ -70,7 +70,7 @@ namespace LibChip8
                 Table[i] = RND_Cxkk;
             for (ushort i = 0xd000; i < 0xdfff; i++)
                 Table[i] = DRW_Dxyn;
-            for(ushort i = 0xe000; i< 0xef9e; i++)
+            for (ushort i = 0xe000; i < 0xef9e; i++)
             {
                 ushort lsbByte = (ushort)(i & 0x00ff);
                 if (lsbByte == 0x009e)
@@ -78,7 +78,7 @@ namespace LibChip8
                 else if (lsbByte == 0x00a1)
                     Table[i] = SKNP_ExA1;
             }
-            for(ushort i = 0xf007; i < 0xff07; i++)
+            for (ushort i = 0xf007; i < 0xff07; i++)
             {
                 ushort lsbByte = (ushort)(i & 0x00ff);
                 if (lsbByte == 0x0007)
@@ -100,21 +100,21 @@ namespace LibChip8
                 else if (lsbByte == 0x0065)
                     Table[i] = LD_Fx65;
             }
-            for(ushort i = 0; i < ushort.MaxValue; i++)
+            for (ushort i = 0; i < ushort.MaxValue; i++)
             {
-                if(!Table.ContainsKey(i))
+                if (!Table.ContainsKey(i))
                     Table[i] = NOOP;
             }
         }
 
-        public static void NOOP(ushort _, Chip8Model __)
+        public static void NOOP(ushort _, Model __)
         { }
 
         /// <summary>
         /// Clear the display
         /// </summary>
         /// <param name="model"></param>
-        public static void CLS_00E0(ushort _, Chip8Model model)
+        public static void CLS_00E0(ushort _, Model model)
         {
             Array.Clear(model.DisplayBuffer);
         }
@@ -123,7 +123,7 @@ namespace LibChip8
         /// Return from a subroutine.
         /// </summary>
         /// <param name="model"></param>
-        public static void RET_00EE(ushort _, Chip8Model model)
+        public static void RET_00EE(ushort _, Model model)
         {
             model.PC = model.Stack[model.SP];
             model.SP--;
@@ -134,7 +134,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void JP_1nnn(ushort opcode, Chip8Model model)
+        public static void JP_1nnn(ushort opcode, Model model)
         {
             model.PC = (ushort)(opcode & 0x0fff);
         }
@@ -144,7 +144,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void CALL_2nnn(ushort opcode, Chip8Model model)
+        public static void CALL_2nnn(ushort opcode, Model model)
         {
             model.Stack[++model.SP] = (ushort)(opcode & 0x0fff);
         }
@@ -154,7 +154,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void SE_3xkk(ushort opcode, Chip8Model model)
+        public static void SE_3xkk(ushort opcode, Model model)
         {
             byte kk = (byte)(opcode & 0x00ff);
             byte x = (byte)((opcode & 0x0f00) >> 8);
@@ -169,7 +169,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void SNE_4xkk(ushort opcode, Chip8Model model)
+        public static void SNE_4xkk(ushort opcode, Model model)
         {
             byte kk = (byte)(opcode & 0x00ff);
             byte x = (byte)((opcode & 0x0f00) >> 8);
@@ -184,7 +184,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void SE_5xy0(ushort opcode, Chip8Model model)
+        public static void SE_5xy0(ushort opcode, Model model)
         {
             byte y = (byte)((opcode & 0x00f0) >> 4);
             byte x = (byte)((opcode & 0x0f00) >> 8);
@@ -199,7 +199,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void LD_6xkk(ushort opcode, Chip8Model model)
+        public static void LD_6xkk(ushort opcode, Model model)
         {
             byte kk = (byte)(opcode & 0x00ff);
             byte x = (byte)((opcode & 0x0f00) >> 8);
@@ -211,7 +211,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void ADD_7xkk(ushort opcode, Chip8Model model)
+        public static void ADD_7xkk(ushort opcode, Model model)
         {
             byte kk = (byte)(opcode & 0x00ff);
             byte x = (byte)((opcode & 0x0f00) >> 8);
@@ -223,7 +223,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void LD_8xy0(ushort opcode, Chip8Model model)
+        public static void LD_8xy0(ushort opcode, Model model)
         {
             byte y = (byte)((opcode & 0x00f0) >> 4);
             byte x = (byte)((opcode & 0x0f00) >> 8);
@@ -235,7 +235,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void OR_8xy1(ushort opcode, Chip8Model model)
+        public static void OR_8xy1(ushort opcode, Model model)
         {
             byte y = (byte)((opcode & 0x00f0) >> 4);
             byte x = (byte)((opcode & 0x0f00) >> 8);
@@ -247,7 +247,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void AND_8xy2(ushort opcode, Chip8Model model)
+        public static void AND_8xy2(ushort opcode, Model model)
         {
             byte y = (byte)((opcode & 0x00f0) >> 4);
             byte x = (byte)((opcode & 0x0f00) >> 8);
@@ -259,7 +259,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void XOR_8xy3(ushort opcode, Chip8Model model)
+        public static void XOR_8xy3(ushort opcode, Model model)
         {
             byte y = (byte)((opcode & 0x00f0) >> 4);
             byte x = (byte)((opcode & 0x0f00) >> 8);
@@ -271,7 +271,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void ADD_8xy4(ushort opcode, Chip8Model model)
+        public static void ADD_8xy4(ushort opcode, Model model)
         {
             byte y = (byte)((opcode & 0x00f0) >> 4);
             byte x = (byte)((opcode & 0x0f00) >> 8);
@@ -289,7 +289,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void SUB_8xy5(ushort opcode, Chip8Model model)
+        public static void SUB_8xy5(ushort opcode, Model model)
         {
             byte y = (byte)((opcode & 0x00f0) >> 4);
             byte x = (byte)((opcode & 0x0f00) >> 8);
@@ -310,7 +310,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void SHR_8xy6(ushort opcode, Chip8Model model)
+        public static void SHR_8xy6(ushort opcode, Model model)
         {
             byte x = (byte)((opcode & 0x0f00) >> 8);
             model.V[0xf] &= ((byte)(model.V[x] & 0x01));
@@ -323,7 +323,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void SUBN_8xy7(ushort opcode, Chip8Model model)
+        public static void SUBN_8xy7(ushort opcode, Model model)
         {
             byte y = (byte)((opcode & 0x00f0) >> 4);
             byte x = (byte)((opcode & 0x0f00) >> 8);
@@ -343,7 +343,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void SHL_8xyE(ushort opcode, Chip8Model model)
+        public static void SHL_8xyE(ushort opcode, Model model)
         {
             byte x = (byte)((opcode & 0x0f00) >> 8);
             model.V[0xf] &= (byte)((model.V[x] >> 7) & 0x01);
@@ -356,7 +356,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void SNE_9xy0(ushort opcode, Chip8Model model)
+        public static void SNE_9xy0(ushort opcode, Model model)
         {
             byte y = (byte)((opcode & 0x00f0) >> 4);
             byte x = (byte)((opcode & 0x0f00) >> 8);
@@ -371,7 +371,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void LD_Annn(ushort opcode, Chip8Model model)
+        public static void LD_Annn(ushort opcode, Model model)
         {
             ushort nnn = (ushort)(opcode & 0x0fff);
             model.I = nnn;
@@ -382,7 +382,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void JP_Bnnn(ushort opcode, Chip8Model model)
+        public static void JP_Bnnn(ushort opcode, Model model)
         {
             ushort nnn = (ushort)(opcode & 0x0fff);
             model.PC = (ushort)(model.V[0] + nnn);
@@ -395,7 +395,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void RND_Cxkk(ushort opcode, Chip8Model model)
+        public static void RND_Cxkk(ushort opcode, Model model)
         {
             byte kk = (byte)(opcode & 0x00ff);
             byte x = (byte)((opcode & 0x0f00) >> 8);
@@ -403,32 +403,32 @@ namespace LibChip8
 
         }
 
-        public static void DRW_Dxyn(ushort opcode, Chip8Model model)
+        public static void DRW_Dxyn(ushort opcode, Model model)
         {
             byte fontHeight = (byte)(opcode & 0x000f);
             byte y = (byte)((opcode & 0x00f0) >> 4);
             byte x = (byte)((opcode & 0x0f00) >> 8);
 
-            byte xPos = (byte)(model.V[x] & Chip8Constants.DISPLAY_WIDTH);
-            byte yPos = (byte)(model.V[y] & Chip8Constants.DISPLAY_HEIGHT);
+            byte xPos = (byte)(model.V[x] & Constants.DISPLAY_WIDTH);
+            byte yPos = (byte)(model.V[y] & Constants.DISPLAY_HEIGHT);
 
             model.V[0xf] = 0;
 
             for (int row = 0; row < fontHeight; row++)
             {
                 byte spritRowOfPixels = model.Ram[model.I + row];
-                for (int col = 0; col < Chip8Constants.FONT_LETTER_WIDTH; col++)
+                for (int col = 0; col < Constants.FONT_LETTER_WIDTH; col++)
                 {
                     // TODO: go through the 8 pixels across the sprite
                     byte spritePixel = (byte)(spritRowOfPixels & (0b1000_0000 >> col));
-                    byte screenPixel = model.DisplayBuffer[(yPos + row) * Chip8Constants.DISPLAY_WIDTH + (xPos + col)];
+                    byte screenPixel = model.DisplayBuffer[(yPos + row) * Constants.DISPLAY_WIDTH + (xPos + col)];
                     if (spritePixel != 0)
                     {
                         if (screenPixel == 0xff)
                         {
                             model.V[0xf] = 1;
                         }
-                        model.DisplayBuffer[(yPos + row) * Chip8Constants.DISPLAY_WIDTH + (xPos + col)] ^= spritePixel;
+                        model.DisplayBuffer[(yPos + row) * Constants.DISPLAY_WIDTH + (xPos + col)] ^= spritePixel;
                     }
                 }
             }
@@ -439,11 +439,11 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void SKP_Ex9E(ushort opcode, Chip8Model model)
+        public static void SKP_Ex9E(ushort opcode, Model model)
         {
 
             byte x = (byte)((opcode & 0x0f00) >> 8);
-            if (model.Keys[model.V[x]] == Chip8Constants.KEY_PRESSED_DOWN)
+            if (model.Keys[model.V[x]] == Constants.KEY_PRESSED_DOWN)
             {
                 model.PC += 2;
             }
@@ -454,11 +454,11 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void SKNP_ExA1(ushort opcode, Chip8Model model)
+        public static void SKNP_ExA1(ushort opcode, Model model)
         {
 
             byte x = (byte)((opcode & 0x0f00) >> 8);
-            if (model.Keys[model.V[x]] != Chip8Constants.KEY_PRESSED_DOWN)
+            if (model.Keys[model.V[x]] != Constants.KEY_PRESSED_DOWN)
             {
                 model.PC += 2;
             }
@@ -469,7 +469,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void LD_Fx07(ushort opcode, Chip8Model model)
+        public static void LD_Fx07(ushort opcode, Model model)
         {
             byte x = (byte)((opcode & 0x0f00) >> 8);
             model.V[x] = model.DT;
@@ -480,13 +480,13 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void LD_Fx0A(ushort opcode, Chip8Model model)
+        public static void LD_Fx0A(ushort opcode, Model model)
         {
             byte x = (byte)((opcode & 0x0f00) >> 8);
 
-            for (int i = 0; i < Chip8Constants.KEYBOARD_BUFFER_SIZE; i++)
+            for (int i = 0; i < Constants.KEYBOARD_BUFFER_SIZE; i++)
             {
-                if (model.Keys[i] == Chip8Constants.KEY_PRESSED_DOWN)
+                if (model.Keys[i] == Constants.KEY_PRESSED_DOWN)
                 {
                     model.V[x] = (byte)(i);
                     return;
@@ -501,7 +501,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void LD_Fx15(ushort opcode, Chip8Model model)
+        public static void LD_Fx15(ushort opcode, Model model)
         {
             byte x = (byte)((opcode & 0x0f00) >> 8);
             model.DT = model.V[x];
@@ -512,7 +512,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void LD_Fx18(ushort opcode, Chip8Model model)
+        public static void LD_Fx18(ushort opcode, Model model)
         {
             byte x = (byte)((opcode & 0x0f00) >> 8);
             model.ST = model.V[x];
@@ -523,7 +523,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void ADD_Fx1E(ushort opcode, Chip8Model model)
+        public static void ADD_Fx1E(ushort opcode, Model model)
         {
             byte x = (byte)((opcode & 0x0f00) >> 8);
             model.I += model.V[x];
@@ -534,10 +534,10 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void LD_Fx29(ushort opcode, Chip8Model model)
+        public static void LD_Fx29(ushort opcode, Model model)
         {
             byte x = (byte)((opcode & 0x0f00) >> 8);
-            model.I = (ushort)(Chip8Constants.FONT_START_ADDRESS + (5 * model.V[x]));
+            model.I = (ushort)(Constants.FONT_START_ADDRESS + (5 * model.V[x]));
         }
 
         /// <summary>
@@ -545,7 +545,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void LD_Fx33(ushort opcode, Chip8Model model)
+        public static void LD_Fx33(ushort opcode, Model model)
         {
             byte x = (byte)((opcode & 0x0f00) >> 8);
             byte val = model.V[x];
@@ -561,7 +561,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void LD_Fx55(ushort opcode, Chip8Model model)
+        public static void LD_Fx55(ushort opcode, Model model)
         {
             byte x = (byte)((opcode & 0x0f00) >> 8);
             for (int i = 0; i < model.V[x]; i++)
@@ -575,7 +575,7 @@ namespace LibChip8
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="model"></param>
-        public static void LD_Fx65(ushort opcode, Chip8Model model)
+        public static void LD_Fx65(ushort opcode, Model model)
         {
             byte x = (byte)((opcode & 0x0f00) >> 8);
             for (int i = 0; i < model.V[x]; i++)

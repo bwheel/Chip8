@@ -8,7 +8,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LibChip8
 {
-    public class Chip8Model
+    public class Model
     {
         /// <summary>
         /// Application memory in RAM.
@@ -30,12 +30,12 @@ namespace LibChip8
         public ushort I { get; set; }
 
         /// <summary>
-        /// Delay Timer. Decrements at a rate of <see cref="Chip8Constants.TIMER_FREQUENCY_HZ"/>
+        /// Delay Timer. Decrements at a rate of <see cref="Constants.TIMER_FREQUENCY_HZ"/>
         /// </summary>
         public byte DT { get; set; }
 
         /// <summary>
-        /// SoundTimer. Decrements at a rate of <see cref="Chip8Constants.TIMER_FREQUENCY_HZ"/>
+        /// SoundTimer. Decrements at a rate of <see cref="Constants.TIMER_FREQUENCY_HZ"/>
         /// </summary>
         public byte ST { get; set; }
 
@@ -64,21 +64,21 @@ namespace LibChip8
         /// </summary>
         public byte[] Keys { get; set; }
 
-        public Chip8Model()
+        public Model()
         {
-            Ram = new byte[Chip8Constants.MEMORY_SIZE];
-            V = new byte[Chip8Constants.VX_SIZE];
+            Ram = new byte[Constants.MEMORY_SIZE];
+            V = new byte[Constants.VX_SIZE];
             I = 0;
             DT = 0;
             ST = 0;
-            PC = Chip8Constants.PROGRAM_START_ADDRESS;
+            PC = Constants.PROGRAM_START_ADDRESS;
             SP = 0;
-            Stack = new ushort[Chip8Constants.STACK_SIZE];
-            DisplayBuffer = new byte[Chip8Constants.DISPLAY_BUFFER_SIZE];
-            Keys = new byte[Chip8Constants.KEYBOARD_BUFFER_SIZE];
+            Stack = new ushort[Constants.STACK_SIZE];
+            DisplayBuffer = new byte[Constants.DISPLAY_BUFFER_SIZE];
+            Keys = new byte[Constants.KEYBOARD_BUFFER_SIZE];
 
             // Initialize the ram with the sprite by default.
-            Array.Copy(Chip8FontData.LETTERS, 0, Ram, Chip8Constants.FONT_START_ADDRESS, Chip8FontData.LETTERS.Length);
+            Array.Copy(FontData.LETTERS, 0, Ram, Constants.FONT_START_ADDRESS, FontData.LETTERS.Length);
         }
     }
 }

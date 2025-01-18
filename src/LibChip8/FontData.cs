@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LibChip8
 {
-    public class Chip8FontData
+    internal static class FontData
     {
         public static readonly byte[] LETTERS = [
             // 0
