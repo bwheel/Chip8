@@ -408,9 +408,10 @@ internal static class Opcodes
         byte y = (byte)((opcode & 0x00f0) >> 4);
         byte x = (byte)((opcode & 0x0f00) >> 8);
 
-        byte xPos = (byte)(model.V[x] & Constants.DISPLAY_WIDTH);
+        byte xPos = (byte)(model.V[x] % Constants.DISPLAY_WIDTH);
         byte yPos = (byte)(model.V[y] & Constants.DISPLAY_HEIGHT);
 
+        // clear the collision register
         model.V[0xf] = 0;
 
         for (int row = 0; row < fontHeight; row++)
@@ -421,13 +422,14 @@ internal static class Opcodes
                 // TODO: go through the 8 pixels across the sprite
                 byte spritePixel = (byte)(spritRowOfPixels & (0b1000_0000 >> col));
                 byte screenPixel = model.DisplayBuffer[(yPos + row) * Constants.DISPLAY_WIDTH + (xPos + col)];
+
                 if (spritePixel != 0)
                 {
                     if (screenPixel == 0xff)
                     {
                         model.V[0xf] = 1;
                     }
-                    model.DisplayBuffer[(yPos + row) * Constants.DISPLAY_WIDTH + (xPos + col)] ^= spritePixel;
+                    model.DisplayBuffer[(yPos + row) * Constants.DISPLAY_WIDTH + (xPos + col)] ^= 0xff;
                 }
             }
         }
