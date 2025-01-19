@@ -79,4 +79,16 @@ public class Model
         // Initialize the ram with the sprite by default.
         Array.Copy(FontData.LETTERS, 0, Ram, Constants.FONT_START_ADDRESS, FontData.LETTERS.Length);
     }
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("V-Registers");
+        for (int i = 0; i < Constants.VX_SIZE; i++)
+        {
+            sb.AppendLine($"\t{i}: 0x{V[i]:X2}");
+        }
+        sb.AppendLine($"I-Reg: 0x{I:X4}");
+        sb.AppendLine($"PC-Reg: 0x{PC:X4}");
+        return sb.ToString();
+    }
 }

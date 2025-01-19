@@ -145,7 +145,9 @@ internal static class Opcodes
     /// <param name="model"></param>
     public static void CALL_2nnn(ushort opcode, Model model)
     {
-        model.Stack[++model.SP] = (ushort)(opcode & 0x0fff);
+        model.Stack[model.SP] = model.PC;
+        ++model.SP;
+        model.PC = (ushort)(opcode & 0x0fff);
     }
 
     /// <summary>
@@ -399,7 +401,6 @@ internal static class Opcodes
         byte kk = (byte)(opcode & 0x00ff);
         byte x = (byte)((opcode & 0x0f00) >> 8);
         model.V[x] = (byte)(rng.Next(0, 255) & kk);
-
     }
 
     public static void DRW_Dxyn(ushort opcode, Model model)
@@ -409,7 +410,7 @@ internal static class Opcodes
         byte x = (byte)((opcode & 0x0f00) >> 8);
 
         byte xPos = (byte)(model.V[x] % Constants.DISPLAY_WIDTH);
-        byte yPos = (byte)(model.V[y] & Constants.DISPLAY_HEIGHT);
+        byte yPos = (byte)(model.V[y] % Constants.DISPLAY_HEIGHT);
 
         // clear the collision register
         model.V[0xf] = 0;
@@ -425,11 +426,11 @@ internal static class Opcodes
 
                 if (spritePixel != 0)
                 {
-                    if (screenPixel == 0xff)
+                    if (screenPixel == 1)
                     {
                         model.V[0xf] = 1;
                     }
-                    model.DisplayBuffer[(yPos + row) * Constants.DISPLAY_WIDTH + (xPos + col)] ^= 0xff;
+                    model.DisplayBuffer[(yPos + row) * Constants.DISPLAY_WIDTH + (xPos + col)] ^= 1;
                 }
             }
         }
@@ -528,6 +529,8 @@ internal static class Opcodes
     {
         byte x = (byte)((opcode & 0x0f00) >> 8);
         model.I += model.V[x];
+        if (model.I > 0x0FFF)
+            model.I %= 0x0FFF;
     }
 
     /// <summary>
@@ -551,10 +554,8 @@ internal static class Opcodes
         byte x = (byte)((opcode & 0x0f00) >> 8);
         byte val = model.V[x];
         model.Ram[model.I + 2] = (byte)(val % 10);
-        val /= 10;
-        model.Ram[model.I + 1] = (byte)(val % 10);
-        val /= 10;
-        model.Ram[model.I] = (byte)(val % 10);
+        model.Ram[model.I + 1] = (byte)(val / 10 % 10);
+        model.Ram[model.I] = (byte)(val / 100 % 10);
     }
 
     /// <summary>
@@ -565,7 +566,8 @@ internal static class Opcodes
     public static void LD_Fx55(ushort opcode, Model model)
     {
         byte x = (byte)((opcode & 0x0f00) >> 8);
-        for (int i = 0; i < model.V[x]; i++)
+
+        for (int i = 0; i < Constants.VX_SIZE; i++)
         {
             model.Ram[model.I + i] = model.V[i];
         }
@@ -579,7 +581,7 @@ internal static class Opcodes
     public static void LD_Fx65(ushort opcode, Model model)
     {
         byte x = (byte)((opcode & 0x0f00) >> 8);
-        for (int i = 0; i < model.V[x]; i++)
+        for (int i = 0; i < Constants.VX_SIZE; i++)
         {
             model.V[i] = model.Ram[model.I + i];
         }

@@ -7,6 +7,42 @@ namespace Chip8;
 public class Program
 {
 
+    private static class Colors
+    {
+        public static readonly SDL.SDL_Color WHITE = new SDL.SDL_Color()
+        {
+            r = 255,
+            b = 255,
+            g = 255,
+            a = 255,
+        };
+        public static readonly SDL.SDL_Color BLACK = new SDL.SDL_Color()
+        {
+            r = 0,
+            g = 0,
+            b = 0,
+            a = 255,
+        };
+        public static readonly SDL.SDL_Color NEON_GREEN = new SDL.SDL_Color()
+        {
+            r = 119,
+            g = 235,
+            b = 52,
+            a = 255,
+        };
+    }
+
+    private static class Configuration
+    {
+        public const string WINDOW_TITLE = "Chip8";
+        public const int WINDOW_OFFSET_X = 100;
+        public const int WINDOW_OFFSET_Y = 100;
+        public const int WINDOW_WIDTH = 1280;
+        public const int WINDOW_HEIGHT = 640;
+        public const int PIXEL_WIDTH = WINDOW_WIDTH / 64;
+        public const int PIXEL_HEIGHT = WINDOW_HEIGHT / 32;
+    }
+
     private static bool processInput(Model model)
     {
         bool quit = false;
@@ -244,24 +280,30 @@ public class Program
 
     public static void Main(string[] args)
     {
-        _ = SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING);
-
+        string filePath = args.Length > 0 && File.Exists(args.First())
+            ? args[0]
+            : throw new ArgumentException("Invalid file.");
         Emulator emulator = new Emulator();
         Model model = new Model();
-        emulator.LoadRom(model, "./IBM_Logo.ch8");
-        int cycleDelay = 10;
+        emulator.LoadRom(model, filePath);
 
-        var window = SDL.SDL_CreateWindow("Chip8", 100, 100, 700, 600, SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN);
+
+        SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING);
+        var window = SDL.SDL_CreateWindow(
+            title: Configuration.WINDOW_TITLE,
+            x: Configuration.WINDOW_OFFSET_X,
+            y: Configuration.WINDOW_OFFSET_Y,
+            w: Configuration.WINDOW_WIDTH,
+            h: Configuration.WINDOW_HEIGHT,
+            flags: SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN);
         var renderer = SDL.SDL_CreateRenderer(window, -1, SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
-        const int PIXEL_WIDTH = 700 / 64;
-        const int PIXEL_HEIGHT = 600 / 32;
 
         // initializer SDL rendering 
         SDL.SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         // Clear winow
         SDL.SDL_RenderClear(renderer);
 
-
+        const int cycleDelay = 10;
         long prevTime = DateTime.Now.Ticks;
         bool quit = false;
         while (!quit)
@@ -276,7 +318,7 @@ public class Program
                 emulator.Cycle(model);
 
                 // Update screen
-                SDL.SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                SDL.SDL_SetRenderDrawColor(renderer, Colors.BLACK.r, Colors.BLACK.g, Colors.BLACK.b, Colors.BLACK.a);
                 SDL.SDL_RenderClear(renderer);
                 SDL.SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
                 for (int row = 0; row < 32; row++)
@@ -284,19 +326,28 @@ public class Program
                     for (int col = 0; col < 64; col++)
                     {
                         bool shouldDraw = model.DisplayBuffer[row * 64 + col] > 0;
+
+                        SDL.SDL_Rect rect = new SDL.SDL_Rect()
+                        {
+                            x = col * Configuration.PIXEL_WIDTH,
+                            y = row * Configuration.PIXEL_HEIGHT,
+                            w = Configuration.PIXEL_WIDTH,
+                            h = Configuration.PIXEL_HEIGHT
+                        };
+
+                        // Render rect
                         if (shouldDraw)
                         {
-                            SDL.SDL_Rect rect = new SDL.SDL_Rect()
-                            {
-                                x = col * PIXEL_WIDTH,
-                                y = row * PIXEL_HEIGHT,
-                                w = PIXEL_WIDTH,
-                                h = PIXEL_HEIGHT
-                            };
-
-                            // Render rect
+                            SDL.SDL_SetRenderDrawColor(renderer, Colors.NEON_GREEN.r, Colors.NEON_GREEN.g, Colors.NEON_GREEN.b, Colors.NEON_GREEN.a);
                             SDL.SDL_RenderFillRect(renderer, ref rect);
                         }
+                        else
+                        {
+                            SDL.SDL_SetRenderDrawColor(renderer, Colors.WHITE.r, Colors.WHITE.g, Colors.WHITE.b, Colors.WHITE.a);
+                            SDL.SDL_RenderDrawRect(renderer, ref rect);
+                        }
+
+
                     }
                 }
                 // Render the rect to the screen

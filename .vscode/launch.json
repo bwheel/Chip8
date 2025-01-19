@@ -8,7 +8,7 @@
       "name": "C#: Chip8 Debug",
       "type": "dotnet",
       "request": "launch",
-      "projectPath": "${workspaceFolder}/src/Chip8/Chip8.csproj"
+      "projectPath": "${workspaceFolder}/src/Chip8/Chip8.csproj",
     }
   ]
 }
