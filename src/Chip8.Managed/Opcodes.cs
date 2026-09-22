@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LibChip8;
+namespace Chip8.Managed;
 internal static class Opcodes
 {
 
@@ -417,21 +417,32 @@ internal static class Opcodes
 
         for (int row = 0; row < fontHeight; row++)
         {
-            byte spritRowOfPixels = model.Ram[model.I + row];
+            int py = yPos + row;
+            if (py >= Constants.DISPLAY_HEIGHT)
+            {
+                break; // clip sprite at the bottom edge
+            }
+
+            byte spriteRowOfPixels = model.Ram[model.I + row];
             for (int col = 0; col < Constants.FONT_LETTER_WIDTH; col++)
             {
-                // TODO: go through the 8 pixels across the sprite
-                byte spritePixel = (byte)(spritRowOfPixels & (0b1000_0000 >> col));
-                byte screenPixel = model.DisplayBuffer[(yPos + row) * Constants.DISPLAY_WIDTH + (xPos + col)];
-
-                if (spritePixel != 0)
+                int px = xPos + col;
+                if (px >= Constants.DISPLAY_WIDTH)
                 {
-                    if (screenPixel == 1)
-                    {
-                        model.V[0xf] = 1;
-                    }
-                    model.DisplayBuffer[(yPos + row) * Constants.DISPLAY_WIDTH + (xPos + col)] ^= 1;
+                    break; // clip sprite at the right edge
                 }
+
+                if ((spriteRowOfPixels & (0b1000_0000 >> col)) == 0)
+                {
+                    continue;
+                }
+
+                int index = py * Constants.DISPLAY_WIDTH + px;
+                if (model.DisplayBuffer[index] == 1)
+                {
+                    model.V[0xf] = 1;
+                }
+                model.DisplayBuffer[index] ^= 1;
             }
         }
     }

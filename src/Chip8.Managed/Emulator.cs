@@ -1,4 +1,4 @@
-﻿namespace LibChip8;
+﻿namespace Chip8.Managed;
 
 public class Emulator
 {
@@ -16,7 +16,7 @@ public class Emulator
         model = new Model();
     }
 
-    public void Cycle(Model model)
+    public void Step(Model model)
     {
         // fetch
         ushort opcode = (ushort)((model.Ram[model.PC] << 8) | model.Ram[model.PC + 1]);
@@ -27,6 +27,13 @@ public class Emulator
         // execute
         model.PC += 2;
         action(opcode, model);
+    }
+
+    /// <summary>
+    /// Decrements the delay and sound timers. Call at <see cref="Constants.TIMER_FREQUENCY_HZ"/>.
+    /// </summary>
+    public void TickTimers(Model model)
+    {
         if (model.ST > 0) model.ST--;
         if (model.DT > 0) model.DT--;
     }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LibChip8;
+namespace Chip8.Managed;
 
 internal static class FontData
 {

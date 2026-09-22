@@ -1,0 +1,63 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Chip8.Interop</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!--
+    Native library (libs/chip8). By default it is built with CMake as part of this project's build and
+    copied next to the assembly. Set Chip8NativeLibPath to a prebuilt shared library to skip CMake.
+  -->
+  <PropertyGroup>
+    <Chip8NativeSourceDir>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', '..', 'libs', 'chip8'))</Chip8NativeSourceDir>
+    <Chip8NativeBuildDir>$(Chip8NativeSourceDir)build/interop-$(Configuration)/</Chip8NativeBuildDir>
+    <Chip8NativeBuildType Condition="'$(Configuration)' == 'Release'">Release</Chip8NativeBuildType>
+    <Chip8NativeBuildType Condition="'$(Chip8NativeBuildType)' == ''">Debug</Chip8NativeBuildType>
+
+    <Chip8NativeFileName Condition="$([MSBuild]::IsOSPlatform('Windows'))">chip8.dll</Chip8NativeFileName>
+    <Chip8NativeFileName Condition="$([MSBuild]::IsOSPlatform('OSX'))">libchip8.dylib</Chip8NativeFileName>
+    <Chip8NativeFileName Condition="$([MSBuild]::IsOSPlatform('Linux'))">libchip8.so</Chip8NativeFileName>
+    <Chip8NativeRid Condition="$([MSBuild]::IsOSPlatform('Windows'))">win-x64</Chip8NativeRid>
+    <Chip8NativeRid Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx-x64</Chip8NativeRid>
+    <Chip8NativeRid Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux-x64</Chip8NativeRid>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Chip8NativeSource Include="$(Chip8NativeSourceDir)CMakeLists.txt;$(Chip8NativeSourceDir)src/**/*.c;$(Chip8NativeSourceDir)src/**/*.h;$(Chip8NativeSourceDir)src/CMakeLists.txt;$(Chip8NativeSourceDir)include/**/*.h" />
+  </ItemGroup>
+
+  <Target Name="BuildChip8Native"
+          BeforeTargets="BeforeBuild"
+          Condition="'$(Chip8NativeLibPath)' == ''"
+          Inputs="@(Chip8NativeSource)"
+          Outputs="$(Chip8NativeBuildDir)stamp.txt">
+    <Exec Command="cmake -S &quot;$(Chip8NativeSourceDir)&quot; -B &quot;$(Chip8NativeBuildDir)&quot; -DCMAKE_BUILD_TYPE=$(Chip8NativeBuildType)"
+          ConsoleToMSBuild="true"
+          StandardOutputImportance="low" />
+    <Exec Command="cmake --build &quot;$(Chip8NativeBuildDir)&quot; --target chip8 --config $(Chip8NativeBuildType)"
+          ConsoleToMSBuild="true"
+          StandardOutputImportance="low" />
+    <Touch Files="$(Chip8NativeBuildDir)stamp.txt" AlwaysCreate="true" />
+  </Target>
+
+  <!-- Resolve the built library after the native build (item paths depend on it having run). -->
+  <Target Name="IncludeChip8Native"
+          AfterTargets="BuildChip8Native"
+          BeforeTargets="AssignTargetPaths;_GetCopyToOutputDirectoryItemsFromThisProject">
+    <PropertyGroup>
+      <_Chip8NativeResolved Condition="'$(Chip8NativeLibPath)' != ''">$(Chip8NativeLibPath)</_Chip8NativeResolved>
+      <_Chip8NativeResolved Condition="'$(_Chip8NativeResolved)' == '' And Exists('$(Chip8NativeBuildDir)src/$(Chip8NativeFileName)')">$(Chip8NativeBuildDir)src/$(Chip8NativeFileName)</_Chip8NativeResolved>
+      <_Chip8NativeResolved Condition="'$(_Chip8NativeResolved)' == '' And Exists('$(Chip8NativeBuildDir)src/$(Chip8NativeBuildType)/$(Chip8NativeFileName)')">$(Chip8NativeBuildDir)src/$(Chip8NativeBuildType)/$(Chip8NativeFileName)</_Chip8NativeResolved>
+    </PropertyGroup>
+    <Error Condition="'$(_Chip8NativeResolved)' == ''" Text="Could not find $(Chip8NativeFileName) under $(Chip8NativeBuildDir). Install CMake and a C compiler, or set Chip8NativeLibPath." />
+    <ItemGroup>
+      <None Include="$(_Chip8NativeResolved)" Link="$(Chip8NativeFileName)" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="runtimes/$(Chip8NativeRid)/native/" />
+    </ItemGroup>
+  </Target>
+
+</Project>
